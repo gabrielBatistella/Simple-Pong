@@ -111,9 +111,9 @@ Pong::Pong(int fps, int window_w, int window_h) {
 }
 
 void Pong::Play() {
-    thread leftPaddle_thread([] (Pong *pong) {pong->HandleLeftPaddle();}, this);
+    thread leftPaddle_thread([] (Pong *pong) {pong->HandleLeftPaddle();}, this);	// cria thread para cuidar dos inputs da raquete esquerda
     leftPaddle_thread.detach();
-    thread rightPaddle_thread([] (Pong *pong) {pong->HandleRightPaddle();}, this);
+    thread rightPaddle_thread([] (Pong *pong) {pong->HandleRightPaddle();}, this);	// cria thread para cuidar dos inputs da raquete direita
     rightPaddle_thread.detach();
 
     using clock = chrono::steady_clock;
