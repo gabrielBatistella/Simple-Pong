@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <SDL2/SDL.h>
 
 using namespace std;
 
@@ -15,12 +16,16 @@ class Pong {
     private:
         int fps;
         
+        SDL_Window* g_window;
+        SDL_Surface* g_screen_surface;
+        SDL_Renderer* g_renderer;
+
         Vector2 window_size;
         Vector2 field_size;
 
         Vector2 leftPaddle_pos, rightPaddle_pos;
         Vector2 leftPaddle_dir, rightPaddle_dir;
-        double paddles_speed, paddles_len;
+        double paddles_speed, paddles_len, paddles_wid;
 
         Vector2 ball_pos, ball_pos_old;
         Vector2 ball_dir;
@@ -37,7 +42,8 @@ class Pong {
         void CheckGoalCollisions();
 
         Vector2 Field2Window(Vector2 pos);
-        void OpenWindow();
+        bool OpenWindow();
+        bool LoadImages();
         void DrawFrame();
         void DrawWinner();
         void CloseWindow();

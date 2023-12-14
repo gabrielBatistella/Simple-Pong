@@ -60,12 +60,63 @@ Vector2 Pong::Field2Window(Vector2 pos) {
     return window_pos;
 }
 
-void Pong::OpenWindow() {
-    // abre a janela do jogo
+bool Pong::OpenWindow() {
+    bool success = true;
+     //Initialize SDL
+    if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
+        printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+        success = false;
+    }
+    else
+    {
+        //Create window
+        this->g_window = SDL_CreateWindow("Simple Pong Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (int)this->window_size.x, (int)this->window_size.y, SDL_WINDOW_SHOWN );
+        if(this->g_window == NULL)
+        {
+            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+            success = false;
+        }
+        else{
+            this->g_renderer = SDL_CreateRenderer(this->g_window, -1, SDL_RENDERER_ACCELERATED );
+            if(this->g_renderer == NULL )
+            {
+                printf( "Renderer could not be created! SDL Error: %s\n", SDL_GetError() );
+                success = false;
+            }
+            else {
+                SDL_SetRenderDrawColor(this->g_renderer, 0x12, 0x12, 0x12, 0xFF);
+            }
+        }
+        
+    }
+
+    return success;
 }
 
 void Pong::DrawFrame() {
-    // pega as posicoes das raquetes e bola, converte pra pixels (field2window), e desenha
+    SDL_SetRenderDrawColor(this->g_renderer, 0x12, 0x12, 0x12, 0xFF);
+    SDL_RenderClear(this->g_renderer);
+
+    //Desenha raquete esquerda
+    SDL_Rect left_paddle_rect =  {(int) this->leftPaddle_pos.x,(int) this->leftPaddle_pos.y, (int) this->paddles_wid,(int) this->paddles_len};
+    SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderFillRect(g_renderer, &left_paddle_rect);
+
+    //Desenha raquete direita
+    SDL_Rect right_paddle_rect =  {(int) this->rightPaddle_pos.x,(int) this->rightPaddle_pos.y, (int) this->paddles_wid,(int) this->paddles_len};
+    SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderFillRect(this->g_renderer, &right_paddle_rect);
+
+    SDL_Rect ball_rect =  {(int) ball_pos.x, (int) ball_pos.y, (int) field_size.x/20, (int)field_size.x/20};
+    SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_RenderFillRect(this->g_renderer, &ball_rect);
+
+    SDL_RenderPresent(this->g_renderer);
+}
+
+bool loadMedia(){
+    bool success = true;
+    return success;
 }
 
 void Pong::DrawWinner() {
@@ -73,7 +124,12 @@ void Pong::DrawWinner() {
 }
 
 void Pong::CloseWindow() {
-    // fecha a janela
+    SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(g_window);
+    g_renderer = NULL;
+    g_window = NULL;
+
+    SDL_Quit();
 }
 
 
@@ -93,14 +149,15 @@ Pong::Pong(int fps, int window_w, int window_h) {
     this->window_size = Vector2(window_w, window_h);
 
     double aspect_ratio = this->window_size.x / this->window_size.y;
-    this->field_size = Vector2(100, 100 / aspect_ratio);    // se quiser trocar por algum motivo pode
+    this->field_size = Vector2(640, 600/aspect_ratio);    // se quiser trocar por algum motivo pode
 
-    this->leftPaddle_pos = Vector2(-this->field_size.x * 4 / 10, 0);     // se quiser trocar por algum motivo pode
-    this->rightPaddle_pos = Vector2(this->field_size.x * 4 / 10, 0);     // se quiser trocar por algum motivo pode
+    this->leftPaddle_pos = Vector2(this->field_size.x * 1 / 20, this->field_size.y / 2 - field_size.y/8);     // se quiser trocar por algum motivo pode
+    this->rightPaddle_pos = Vector2(this->field_size.x * 18 / 20, this->field_size.y / 2-field_size.y/8);     // se quiser trocar por algum motivo pode
     this->paddles_speed = this->field_size.y / 2;       // se quiser trocar por algum motivo pode
-    this->paddles_len = this->field_size.y / 5;     // se quiser trocar por algum motivo pode
+    this->paddles_len = this->field_size.y / 4;     // se quiser trocar por algum motivo pode
+    this->paddles_wid = this->field_size.x /20;
 
-    this->ball_pos = Vector2(0, 0);
+    this->ball_pos = Vector2(field_size.x/2 - field_size.x/20, field_size.y/2 - field_size.x/20);
     this->ball_pos_old = Vector2(0, 0);
     this->ball_speed = this->field_size.x / 3;       // se quiser trocar por algum motivo pode
 
@@ -108,6 +165,7 @@ Pong::Pong(int fps, int window_w, int window_h) {
 
     this->OpenWindow();
     this->DrawFrame();
+    this->Play();
 }
 
 void Pong::Play() {
@@ -135,8 +193,8 @@ void Pong::Play() {
 
         this_thread::sleep_until(nextFrame);
 
-        double fps_estimate = 1000 / chrono::duration_cast<chrono::milliseconds>(clock::now() - lastFrame).count();
-        cout << "FPS : " << fps_estimate << endl;
+        //double fps_estimate = 1000 / chrono::duration_cast<chrono::milliseconds>(clock::now() - lastFrame).count();
+        //cout << "FPS : " << fps_estimate << endl;
     }
 
     this->DrawWinner();

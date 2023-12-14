@@ -4,7 +4,7 @@ BINARY = bin/pong
 ZIP = pong.zip
 
 all:
-	@g++ -Wall  -Wno-unused-result -Werror -g $(UTIL) $(MAIN) -o $(BINARY) -lm -pthread
+	@g++ -Wall  -Wno-unused-result -Werror -g $(UTIL) $(MAIN) -o $(BINARY) -lm -pthread -lSDL2
 
 run:
 	@./$(BINARY)
