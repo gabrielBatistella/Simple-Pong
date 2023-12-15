@@ -228,7 +228,7 @@ void Pong::Play() {
     double randomDir = 6.28 * ((double)rand() / (double)RAND_MAX);
     this->ball_dir = Vector2(cos(randomDir), sin(randomDir));
 
-    thread paddles_thread([] (Pong *pong) {pong->HandleInput();}, this);	// cria thread para cuidar dos inputs das raquetes
+    thread paddles_thread([] (Pong *pong) {pong->HandleInput();}, this);	// cria thread para cuidar dos inputs
 
     using clock = chrono::steady_clock;
     clock::time_point lastFrame;
