@@ -5,10 +5,12 @@
 void Pong::MovePaddles() {
     this->m_lPad_dir.lock();        // down no semaforo da direcao da raquete esquerda
     this->leftPaddle_pos += this->leftPaddle_dir * this->paddles_speed / this->fps;
+    this->leftPaddle_pos.y = max(min(this->leftPaddle_pos.y, (this->field_size.y - this->paddles_len) / 2), -(this->field_size.y - this->paddles_len) / 2);
     this->m_lPad_dir.unlock();      // up no semaforo da direcao da raquete esquerda
 
     this->m_rPad_dir.lock();        // down no semaforo da direcao da raquete direita
     this->rightPaddle_pos += this->rightPaddle_dir * this->paddles_speed / this->fps;
+    this->rightPaddle_pos.y = max(min(this->rightPaddle_pos.y, (this->field_size.y - this->paddles_len) / 2), -(this->field_size.y - this->paddles_len) / 2);
     this->m_rPad_dir.unlock();      // up no semaforo da direcao da raquete direita
 }
 
@@ -29,14 +31,16 @@ void Pong::CheckWallCollisions() {
 }
 
 void Pong::CheckPaddleCollisions() {
-    if(this->ball_pos.x > this->rightPaddle_pos.x && this->ball_pos_old.x <= this->rightPaddle_pos.x
-       && abs(this->ball_pos.y - this->rightPaddle_pos.y) <= this->paddles_len) {
-        this->ball_pos.x = 2 * this->rightPaddle_pos.x - this->ball_pos.x;
+    if(this->ball_pos.x + this->ball_size / 2 > this->rightPaddle_pos.x - this->paddles_wid / 2
+       && this->ball_pos_old.x + this->ball_size / 2 <= this->rightPaddle_pos.x - this->paddles_wid / 2
+       && abs(this->ball_pos.y - this->rightPaddle_pos.y) <= (this->paddles_len + this->ball_size) / 2) {
+        this->ball_pos.x = 2 * (this->rightPaddle_pos.x - this->paddles_wid / 2) - (this->ball_pos.x + this->ball_size / 2);
         this->ball_dir.x *= -1;
     }
-    else if(this->ball_pos.x < this->leftPaddle_pos.x && this->ball_pos_old.x >= this->leftPaddle_pos.x
-            && abs(this->ball_pos.y - this->leftPaddle_pos.y) <= this->paddles_len) {
-        this->ball_pos.x = 2 * this->leftPaddle_pos.x - this->ball_pos.x;
+    else if(this->ball_pos.x - this->ball_size / 2 < this->leftPaddle_pos.x + this->paddles_wid / 2
+            && this->ball_pos_old.x - this->ball_size / 2 >= this->leftPaddle_pos.x + this->paddles_wid / 2
+            && abs(this->ball_pos.y - this->leftPaddle_pos.y) <= (this->paddles_len + this->ball_size) / 2) {
+        this->ball_pos.x = 2 * (this->leftPaddle_pos.x + this->paddles_wid / 2) - (this->ball_pos.x - this->ball_size / 2);
         this->ball_dir.x *= -1;
     }
 }
@@ -46,17 +50,16 @@ void Pong::CheckGoalCollisions() {
         this->winner = 1;
     }
     else if(this->ball_pos.x < -this->field_size.x / 2) {
-        this->winner = -1;
+        this->winner = 2;
     }
 }
 
 
 
 Vector2 Pong::Field2Window(Vector2 pos) {
-    Vector2 fieldAbsolute_pos = pos + this->field_size / 2;     // considerando a origem da window em baixo na esquerda, se for diferente vai mudar aqui
-
-    double unit2pixel_ratio = this->window_size.x / this->field_size.x;
-    Vector2 window_pos = fieldAbsolute_pos * unit2pixel_ratio;
+    Vector2 window_pos;
+    window_pos.x = pos.x + this->field_size.x / 2;
+    window_pos.y = -pos.y + this->field_size.y / 2;
     return window_pos;
 }
 
@@ -98,29 +101,23 @@ void Pong::DrawFrame() {
     SDL_RenderClear(this->g_renderer);
 
     //Desenha raquete esquerda
-    SDL_Rect left_paddle_rect =  {(int) this->leftPaddle_pos.x,(int) this->leftPaddle_pos.y, (int) this->paddles_wid,(int) this->paddles_len};
+    Vector2 leftPaddle_pos_win = this->Field2Window(this->leftPaddle_pos) - Vector2(this->paddles_wid / 2, this->paddles_len / 2);
+    SDL_Rect left_paddle_rect =  {(int) leftPaddle_pos_win.x,(int) leftPaddle_pos_win.y, (int) this->paddles_wid,(int) this->paddles_len};
     SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(g_renderer, &left_paddle_rect);
 
     //Desenha raquete direita
-    SDL_Rect right_paddle_rect =  {(int) this->rightPaddle_pos.x,(int) this->rightPaddle_pos.y, (int) this->paddles_wid,(int) this->paddles_len};
+    Vector2 rightPaddle_pos_win = this->Field2Window(this->rightPaddle_pos) - Vector2(this->paddles_wid / 2, this->paddles_len / 2);
+    SDL_Rect right_paddle_rect =  {(int) rightPaddle_pos_win.x,(int) rightPaddle_pos_win.y, (int) this->paddles_wid,(int) this->paddles_len};
     SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(this->g_renderer, &right_paddle_rect);
 
-    SDL_Rect ball_rect =  {(int) ball_pos.x, (int) ball_pos.y, (int) field_size.x/20, (int)field_size.x/20};
+    Vector2 ball_pos_win = this->Field2Window(this->ball_pos) - Vector2(this->ball_size / 2, this->ball_size / 2);
+    SDL_Rect ball_rect =  {(int) ball_pos_win.x, (int) ball_pos_win.y, (int) this->ball_size, (int) this->ball_size};
     SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(this->g_renderer, &ball_rect);
 
     SDL_RenderPresent(this->g_renderer);
-}
-
-bool loadMedia(){
-    bool success = true;
-    return success;
-}
-
-void Pong::DrawWinner() {
-    // mostra o vencedor na janela (jogador da esquerda se winner = -1 e da direita se winner = 1)
 }
 
 void Pong::CloseWindow() {
@@ -132,14 +129,67 @@ void Pong::CloseWindow() {
     SDL_Quit();
 }
 
+void Pong::HandlePaddles() {
+    SDL_Event event;
+    const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
 
+    bool gameFinished = false;
 
-void Pong::HandleLeftPaddle() {
-    // checa input e mexe na leftPaddle_dir (lembrando de pegar o semaforo pra isso)
-}
+    while(!gameFinished) {
+        while(SDL_PollEvent(&event) && !gameFinished) {
+            if(event.type == SDL_QUIT) {
+                m_quit.lock();  // down no semaforo de quit
+                this->quit = true;
+                m_quit.unlock();    // up no semaforo de quit
+                gameFinished = true;
+            }
+            else {
+                m_quit.lock();  // down no semaforo de quit
+                if(this->quit) gameFinished = true;
+                m_quit.unlock();    // up no semaforo de quit
+            }
 
-void Pong::HandleRightPaddle() {
-    // checa input e mexe na rightPaddle_dir (lembrando de pegar o semaforo pra isso)
+            bool movedRight = false;
+            if(currentKeyStates[SDL_SCANCODE_UP]) {
+                m_rPad_dir.lock();
+                rightPaddle_dir.y = 1;
+                m_rPad_dir.unlock();
+                movedRight = true;
+            }
+            else if(currentKeyStates[SDL_SCANCODE_DOWN]) {
+                m_rPad_dir.lock();
+                rightPaddle_dir.y = -1;
+                m_rPad_dir.unlock();
+                movedRight = true;
+            }
+
+            bool movedLeft = false;
+            if(currentKeyStates[SDL_SCANCODE_W]) {
+                m_lPad_dir.lock();
+                leftPaddle_dir.y = 1;
+                m_lPad_dir.unlock();
+                movedLeft = true;
+            }
+            else if(currentKeyStates[SDL_SCANCODE_S]) {
+                m_lPad_dir.lock();
+                leftPaddle_dir.y = -1;
+                m_lPad_dir.unlock();
+                movedLeft = true;
+            }
+
+            if(!movedRight) {
+                m_rPad_dir.lock();
+                rightPaddle_dir.y = 0;
+                m_rPad_dir.unlock();
+            }
+
+            if(!movedLeft) {
+                m_lPad_dir.lock();
+                leftPaddle_dir.y = 0;
+                m_lPad_dir.unlock();
+            }
+        }
+    }
 }
 
 
@@ -149,36 +199,45 @@ Pong::Pong(int fps, int window_w, int window_h) {
     this->window_size = Vector2(window_w, window_h);
 
     double aspect_ratio = this->window_size.x / this->window_size.y;
-    this->field_size = Vector2(640, 600/aspect_ratio);    // se quiser trocar por algum motivo pode
+    this->field_size = Vector2(640, 640/aspect_ratio);
 
-    this->leftPaddle_pos = Vector2(this->field_size.x * 1 / 20, this->field_size.y / 2 - field_size.y/8);     // se quiser trocar por algum motivo pode
-    this->rightPaddle_pos = Vector2(this->field_size.x * 18 / 20, this->field_size.y / 2-field_size.y/8);     // se quiser trocar por algum motivo pode
-    this->paddles_speed = this->field_size.y / 2;       // se quiser trocar por algum motivo pode
-    this->paddles_len = this->field_size.y / 4;     // se quiser trocar por algum motivo pode
+    this->leftPaddle_pos = Vector2(-this->field_size.x / 2 * 0.9, 0);
+    this->rightPaddle_pos = Vector2(this->field_size.x / 2 * 0.9, 0);
+    this->paddles_speed = this->field_size.y / 2;
+    this->paddles_len = this->field_size.y / 4;
     this->paddles_wid = this->field_size.x /20;
 
-    this->ball_pos = Vector2(field_size.x/2 - field_size.x/20, field_size.y/2 - field_size.x/20);
+    this->ball_pos = Vector2(0, 0);
     this->ball_pos_old = Vector2(0, 0);
-    this->ball_speed = this->field_size.x / 3;       // se quiser trocar por algum motivo pode
+    this->ball_speed = this->field_size.x / 3;
+    this->ball_size = this->field_size.x / 20;
 
     this->winner = 0;
+    this->quit = false;
 
     this->OpenWindow();
     this->DrawFrame();
-    this->Play();
 }
 
 void Pong::Play() {
-    thread leftPaddle_thread([] (Pong *pong) {pong->HandleLeftPaddle();}, this);	// cria thread para cuidar dos inputs da raquete esquerda
-    leftPaddle_thread.detach();
-    thread rightPaddle_thread([] (Pong *pong) {pong->HandleRightPaddle();}, this);	// cria thread para cuidar dos inputs da raquete direita
-    rightPaddle_thread.detach();
+    this->leftPaddle_dir = Vector2(0, 0);
+    this->rightPaddle_dir = Vector2(0, 0);
+
+    srand(time(NULL));
+    double randomDir = 6.28 * ((double)rand() / (double)RAND_MAX);
+    this->ball_dir = Vector2(cos(randomDir), sin(randomDir));
+
+    thread paddles_thread([] (Pong *pong) {pong->HandlePaddles();}, this);	// cria thread para cuidar dos inputs das raquetes
 
     using clock = chrono::steady_clock;
     clock::time_point lastFrame;
     clock::time_point nextFrame = clock::now();
 
     while(this->winner == 0) {
+        m_quit.lock();  // down no semaforo de quit
+        if(this->quit) break;
+        m_quit.unlock();    // up no semaforo de quit
+
         lastFrame = nextFrame;
         nextFrame += chrono::milliseconds(1000 / this->fps);
 
@@ -197,7 +256,17 @@ void Pong::Play() {
         //cout << "FPS : " << fps_estimate << endl;
     }
 
-    this->DrawWinner();
+    if(this->winner != 0) {
+        cout << "O jogador " << this->winner << " venceu!" << endl;
+    }
+    else {
+        cout << "Ja vai embora? Jogue um pouco mais ;-;]" << endl;
+    }
+
+    m_quit.lock();  // down no semaforo de quit
+    this->quit = true;
+    m_quit.unlock();    // up no semaforo de quit
+    paddles_thread.join();
 }
 
 Pong::~Pong() {

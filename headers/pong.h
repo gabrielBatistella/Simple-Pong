@@ -29,11 +29,14 @@ class Pong {
 
         Vector2 ball_pos, ball_pos_old;
         Vector2 ball_dir;
-        double ball_speed;
+        double ball_speed, ball_size;
 
         int winner;
 
+        bool quit;
+
         mutex m_lPad_dir, m_rPad_dir;
+        mutex m_quit;
         
         void MovePaddles();
         void MoveBall();
@@ -43,14 +46,11 @@ class Pong {
 
         Vector2 Field2Window(Vector2 pos);
         bool OpenWindow();
-        bool LoadImages();
         void DrawFrame();
-        void DrawWinner();
         void CloseWindow();
 
     protected:
-        void HandleLeftPaddle();
-        void HandleRightPaddle();
+        void HandlePaddles();
 
     public:
         Pong(int fps, int window_w, int window_h);
