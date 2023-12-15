@@ -6,6 +6,8 @@ Eduardo Neves Gomes da Silva - 13822710
 Gabriel Takeshi Miyake Batistella - 11232198
 
 Rogério Lopes Lübe - 10770113
+
+Link para o vídeo de apresentação - https://youtu.be/BkAAn0cIRlE
 # Manual de instalação
 
 Para o funcionamento correto do jogo é necessário fazer o download da biblioteca SDL2 disponível em https://www.libsdl.org/
