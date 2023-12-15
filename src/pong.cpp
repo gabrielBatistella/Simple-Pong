@@ -112,6 +112,7 @@ void Pong::DrawFrame() {
     SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderFillRect(this->g_renderer, &right_paddle_rect);
 
+    //Desenha bola
     Vector2 ball_pos_win = this->Field2Window(this->ball_pos) - Vector2(this->ball_size / 2, this->ball_size / 2);
     SDL_Rect ball_rect =  {(int) ball_pos_win.x, (int) ball_pos_win.y, (int) this->ball_size, (int) this->ball_size};
     SDL_SetRenderDrawColor(this->g_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -151,42 +152,42 @@ void Pong::HandleInput() {
 
             bool movedRight = false;
             if(currentKeyStates[SDL_SCANCODE_UP]) {
-                m_rPad_dir.lock();
+                m_rPad_dir.lock();  // down no semaforo da direcao da raquete direita
                 rightPaddle_dir.y = 1;
-                m_rPad_dir.unlock();
+                m_rPad_dir.unlock();    // up no semaforo da direcao da raquete direita
                 movedRight = true;
             }
             else if(currentKeyStates[SDL_SCANCODE_DOWN]) {
-                m_rPad_dir.lock();
+                m_rPad_dir.lock();  // down no semaforo da direcao da raquete direita
                 rightPaddle_dir.y = -1;
-                m_rPad_dir.unlock();
+                m_rPad_dir.unlock();    // up no semaforo da direcao da raquete direita
                 movedRight = true;
             }
 
             bool movedLeft = false;
             if(currentKeyStates[SDL_SCANCODE_W]) {
-                m_lPad_dir.lock();
+                m_lPad_dir.lock();  // down no semaforo da direcao da raquete esquerda
                 leftPaddle_dir.y = 1;
-                m_lPad_dir.unlock();
+                m_lPad_dir.unlock();    // up no semaforo da direcao da raquete esquerda
                 movedLeft = true;
             }
             else if(currentKeyStates[SDL_SCANCODE_S]) {
-                m_lPad_dir.lock();
+                m_lPad_dir.lock();  // down no semaforo da direcao da raquete esquerda
                 leftPaddle_dir.y = -1;
-                m_lPad_dir.unlock();
+                m_lPad_dir.unlock();    // up no semaforo da direcao da raquete esquerda
                 movedLeft = true;
             }
 
             if(!movedRight) {
-                m_rPad_dir.lock();
+                m_rPad_dir.lock();  // down no semaforo da direcao da raquete direita
                 rightPaddle_dir.y = 0;
-                m_rPad_dir.unlock();
+                m_rPad_dir.unlock();    // up no semaforo da direcao da raquete direita
             }
 
             if(!movedLeft) {
-                m_lPad_dir.lock();
+                m_lPad_dir.lock();  // down no semaforo da direcao da raquete esquerda
                 leftPaddle_dir.y = 0;
-                m_lPad_dir.unlock();
+                m_lPad_dir.unlock();    // up no semaforo da direcao da raquete esquerda
             }
         }
     }
