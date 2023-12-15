@@ -233,9 +233,11 @@ void Pong::Play() {
     clock::time_point lastFrame;
     clock::time_point nextFrame = clock::now();
 
-    while(this->winner == 0) {
+    bool gameClosed = false;
+
+    while(this->winner == 0 && !gameClosed) {
         m_quit.lock();  // down no semaforo de quit
-        if(this->quit) break;
+        if(this->quit) gameClosed = true;
         m_quit.unlock();    // up no semaforo de quit
 
         lastFrame = nextFrame;
