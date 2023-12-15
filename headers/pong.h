@@ -50,7 +50,7 @@ class Pong {
         void CloseWindow();
 
     protected:
-        void HandlePaddles();
+        void HandleInput();
 
     public:
         Pong(int fps, int window_w, int window_h);

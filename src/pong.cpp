@@ -129,7 +129,7 @@ void Pong::CloseWindow() {
     SDL_Quit();
 }
 
-void Pong::HandlePaddles() {
+void Pong::HandleInput() {
     SDL_Event event;
     const Uint8* currentKeyStates = SDL_GetKeyboardState( NULL );
 
@@ -227,7 +227,7 @@ void Pong::Play() {
     double randomDir = 6.28 * ((double)rand() / (double)RAND_MAX);
     this->ball_dir = Vector2(cos(randomDir), sin(randomDir));
 
-    thread paddles_thread([] (Pong *pong) {pong->HandlePaddles();}, this);	// cria thread para cuidar dos inputs das raquetes
+    thread paddles_thread([] (Pong *pong) {pong->HandleInput();}, this);	// cria thread para cuidar dos inputs das raquetes
 
     using clock = chrono::steady_clock;
     clock::time_point lastFrame;
