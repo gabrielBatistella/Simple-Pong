@@ -20,8 +20,11 @@ O projeto consiste de uma versão simples do clássico jogo Pong.
 ## Comandos
 
 **w** - Movimenta a raquete esquerda para cima
+
 **s** - Movimenta a raquete esquerda para baixo
+
 **&uarr;** - Movimenta a raquete direita para cima
+
 **&darr;** - Movimenta a raquete direita para baixo
 
 Uma bola se move pelo campo de jogo e o trabalho de cada jogador é rebater a bola com a sua raquete, evitando que ela passe das laterais da tela. O jogador que deixar a bola passar perde.
