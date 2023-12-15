@@ -2,7 +2,9 @@
 Trabalho final da disciplina SSC0140 - Sistemas Operacionais I - Pong simples implementado com threads e semáforos
 
 Eduardo Neves Gomes da Silva - 13822710
+
 Gabriel Takeshi Miyake Batistella - 11232198
+
 Rogério Lopes Lübe - 10770113
 # Manual de instalação
 
